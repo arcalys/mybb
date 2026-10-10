@@ -2372,6 +2372,31 @@ if($mybb->input['action'] == "do_editprofile")
 		require_once MYBB_ROOT."inc/functions_warnings.php";
 		foreach($modoptions as $option)
 		{
+			if($option['action'] === 'suspendavatar' && !empty($mybb->input[$option['action']]))
+			{
+				$suspend_time = trim($mybb->get_input($option['time']));
+				$suspend_period = $mybb->get_input($option['period']);
+				if($user['suspendavatar'] == 1 && preg_match('/^0*$/D', $suspend_time) && in_array($suspend_period, array('', 'hours', 'days', 'weeks', 'months'), true))
+				{
+					continue;
+				}
+
+				$suspend_length = fetch_avatar_suspension_length($suspend_time, $suspend_period);
+				if($suspend_length === 0)
+				{
+					$errors[] = $lang->suspendavatar_error;
+				}
+				else
+				{
+					$extra_user_updates['suspendavatar'] = 1;
+					$extra_user_updates['suspendavatartime'] = $suspend_length === -1 ? 0 : TIME_NOW + $suspend_length;
+					$extra_user_updates['avatar'] = '';
+					$extra_user_updates['avatardimensions'] = '';
+					$extra_user_updates['avatartype'] = '';
+				}
+				continue;
+			}
+
 			$mybb->input[$option['time']] = $mybb->get_input($option['time'], MyBB::INPUT_INT);
 			$mybb->input[$option['period']] = $mybb->get_input($option['period']);
 			if(empty($mybb->input[$option['action']]))
@@ -2424,14 +2449,6 @@ if($mybb->input['action'] == "do_editprofile")
 						{
 							$extra_user_updates[$option['update_length']] = TIME_NOW + $suspend_length;
 						}
-					}
-
-					// If suspending the avatar privilege, remove existing avatar
-					if($option['action'] === "suspendavatar")
-					{
-						$extra_user_updates["avatar"] = "";
-						$extra_user_updates["avatardimensions"] = "";
-						$extra_user_updates["avatartype"] = "";
 					}
 				}
 			}
