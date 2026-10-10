@@ -625,7 +625,6 @@ if($mybb->input['action'] == "edit")
 					"avatardimensions" => "",
 					"avatartype" => ""
 				);
-				remove_avatars($user['uid']);
 			}
 
 			// Are we uploading a new avatar?
@@ -738,7 +737,6 @@ if($mybb->input['action'] == "edit")
 								"avatardimensions" => $avatar_dimensions,
 								"avatartype" => "remote"
 							);
-							remove_avatars($user['uid']);
 						}
 						else
 						{
@@ -847,7 +845,6 @@ if($mybb->input['action'] == "edit")
 							$extra_user_updates["avatar"] = "";
 							$extra_user_updates["avatardimensions"] = "";
 							$extra_user_updates["avatartype"] = "";
-							remove_avatars($user["uid"]);
 						}
 					}
 				}
@@ -872,6 +869,12 @@ if($mybb->input['action'] == "edit")
 				if(!empty($extra_user_updates))
 				{
 					$db->update_query("users", $extra_user_updates, "uid='{$user['uid']}'");
+
+					// Remove old avatar files only after all profile changes have been validated and saved.
+					if(isset($extra_user_updates['avatar']) && ($extra_user_updates['avatar'] === '' || $extra_user_updates['avatartype'] === 'remote'))
+					{
+						remove_avatars($user['uid']);
+					}
 				}
 
 				// if we're updating the user's signature preferences, do so now

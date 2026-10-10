@@ -2328,7 +2328,6 @@ if($mybb->input['action'] == "do_editprofile")
 				"avatardimensions" => "",
 				"avatartype" => ""
 			);
-			remove_avatars($user['uid']);
 		}
 
 		// Moderator "Options" (suspend signature, suspend avatar, suspend/moderate posting, suspend private messaging)
@@ -2433,7 +2432,6 @@ if($mybb->input['action'] == "do_editprofile")
 						$extra_user_updates["avatar"] = "";
 						$extra_user_updates["avatardimensions"] = "";
 						$extra_user_updates["avatartype"] = "";
-						remove_avatars($user["uid"]);
 					}
 				}
 			}
@@ -2459,6 +2457,12 @@ if($mybb->input['action'] == "do_editprofile")
 			if(!empty($extra_user_updates))
 			{
 				$db->update_query("users", $extra_user_updates, "uid='{$user['uid']}'");
+
+				// Remove the avatar file only after all profile changes have been validated and saved.
+				if(isset($extra_user_updates['avatar']) && $extra_user_updates['avatar'] === '')
+				{
+					remove_avatars($user['uid']);
+				}
 			}
 			log_moderator_action(array("uid" => $user['uid'], "username" => $user['username']), $lang->edited_user);
 
