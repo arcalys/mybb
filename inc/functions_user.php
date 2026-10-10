@@ -30,6 +30,17 @@ function user_exists($uid)
 }
 
 /**
+ * Checks whether a user's avatar privileges are currently suspended.
+ *
+ * @param array $user The user data.
+ * @return boolean True if the suspension is permanent or has not expired.
+ */
+function is_avatar_suspended($user)
+{
+	return (int)$user['suspendavatar'] === 1 && ((int)$user['suspendavatartime'] === 0 || (int)$user['suspendavatartime'] > TIME_NOW);
+}
+
+/**
  * Checks if $username already exists in the database.
  *
  * @param string $username The username for check for.
