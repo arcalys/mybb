@@ -2719,6 +2719,7 @@ if($mybb->input['action'] == "editprofile")
 	$plugins->run_hooks('modcp_editprofile_end');
 
 	output_page(\MyBB\View\template('modcp/editprofile.twig', [
+		'errors' => $errors,
 		'user' => $user,
 		'customFields' => $customfields,
 		'requiredFields' => $requiredfields,
