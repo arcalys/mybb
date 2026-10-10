@@ -618,7 +618,7 @@ if($mybb->input['action'] == "edit")
 		else
 		{
 			// Are we removing an avatar from this user?
-			if($mybb->get_input('remove_avatar'))
+			if($mybb->get_input('remove_avatar') && empty($_FILES['avatar_upload']['name']))
 			{
 				$extra_user_updates = array(
 					"avatar" => "",
@@ -627,29 +627,8 @@ if($mybb->input['action'] == "edit")
 				);
 			}
 
-			// Are we uploading a new avatar?
-			if($_FILES['avatar_upload']['name'])
-			{
-				$avatar = upload_avatar($_FILES['avatar_upload'], $user['uid']);
-				if($avatar['error'])
-				{
-					$errors = array($avatar['error']);
-				}
-				else
-				{
-					if($avatar['width'] > 0 && $avatar['height'] > 0)
-					{
-						$avatar_dimensions = $avatar['width']."|".$avatar['height'];
-					}
-					$extra_user_updates = array(
-						"avatar" => $avatar['avatar'].'?dateline='.TIME_NOW,
-						"avatardimensions" => $avatar_dimensions,
-						"avatartype" => "upload"
-					);
-				}
-			}
 			// Are we setting a new avatar from a URL?
-			else if(!empty($mybb->input['avatar_url']) && $mybb->input['avatar_url'] != $user['avatar'])
+			if(empty($_FILES['avatar_upload']['name']) && !empty($mybb->input['avatar_url']) && $mybb->input['avatar_url'] != $user['avatar'])
 			{
 				if(!$mybb->settings['allowremoteavatars'])
 				{
@@ -876,6 +855,28 @@ if($mybb->input['action'] == "edit")
 			if(isset($away_in_past))
 			{
 				$errors[] = $lang->error_acp_return_date_past;
+			}
+
+			// Are we uploading a new avatar?
+			if(!$errors && !empty($_FILES['avatar_upload']['name']))
+			{
+				$avatar = upload_avatar($_FILES['avatar_upload'], $user['uid']);
+				if(!empty($avatar['error']))
+				{
+					$errors = array($avatar['error']);
+				}
+				else
+				{
+					if($avatar['width'] > 0 && $avatar['height'] > 0)
+					{
+						$avatar_dimensions = $avatar['width']."|".$avatar['height'];
+					}
+					$extra_user_updates = array_replace(array(
+						"avatar" => $avatar['avatar'].'?dateline='.TIME_NOW,
+						"avatardimensions" => $avatar_dimensions,
+						"avatartype" => "upload"
+					), $extra_user_updates ?? array());
+				}
 			}
 
 			if(!$errors)
