@@ -63,7 +63,9 @@ function fetch_avatar_suspension_length(string $time, string $period): int
 
 	require_once __DIR__.'/functions_warnings.php';
 	$duration = fetch_time_length($time, $period);
-	return is_int($duration) && $duration > 0 && $duration <= PHP_INT_MAX - TIME_NOW ? $duration : 0;
+	$maximum_expiry = 2147483647;
+
+	return is_int($duration) && $duration > 0 && $duration <= $maximum_expiry - TIME_NOW ? $duration : 0;
 }
 
 /**
