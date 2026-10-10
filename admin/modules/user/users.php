@@ -626,9 +626,8 @@ if($mybb->input['action'] == "edit")
 					"avatartype" => ""
 				);
 			}
-
 			// Are we setting a new avatar from a URL?
-			if(empty($_FILES['avatar_upload']['name']) && !empty($mybb->input['avatar_url']) && $mybb->input['avatar_url'] != $user['avatar'])
+			else if(empty($_FILES['avatar_upload']['name']) && !empty($mybb->input['avatar_url']) && $mybb->input['avatar_url'] != $user['avatar'])
 			{
 				if(!$mybb->settings['allowremoteavatars'])
 				{
