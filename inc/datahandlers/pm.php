@@ -130,6 +130,17 @@ class PMDataHandler extends DataHandler
 
 		$pm = &$this->data;
 
+		if($pm['fromid'] > 0)
+		{
+			// A suspension applies to every user-originated PM, including notifications.
+			$sender = get_user($pm['fromid']);
+			if(!empty($sender['suspendpm']))
+			{
+				$this->set_error("sender_pms_suspended");
+				return false;
+			}
+		}
+
 		// Return if we've already validated
 		if(!empty($pm['sender']))
 		{
@@ -145,9 +156,6 @@ class PMDataHandler extends DataHandler
 
 			return true;
 		}
-
-		// Fetch the senders profile data.
-		$sender = get_user($pm['fromid']);
 
 		// Collect user permissions for the sender.
 		$sender_permissions = user_permissions($pm['fromid']);
