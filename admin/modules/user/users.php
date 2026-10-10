@@ -889,7 +889,7 @@ if($mybb->input['action'] == "edit")
 					$db->update_query("users", $extra_user_updates, "uid='{$user['uid']}'");
 
 					// Remove old avatar files only after all profile changes have been validated and saved.
-					if(isset($extra_user_updates['avatar']) && ($extra_user_updates['avatar'] === '' || $extra_user_updates['avatartype'] === 'remote'))
+					if(isset($extra_user_updates['avatar']) && ($extra_user_updates['avatar'] === '' || in_array($extra_user_updates['avatartype'], array('remote', 'gravatar'), true)))
 					{
 						remove_avatars($user['uid']);
 					}
